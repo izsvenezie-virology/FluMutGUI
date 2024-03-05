@@ -1,0 +1,9 @@
+[project]
+name = "mutfinder_gui"
+version = "0.0.1"
+dependencies = [
+    "pyqt5",
+]
+
+[project.scripts]
+mutfinder-gui = "mutfinder_gui:launch"
