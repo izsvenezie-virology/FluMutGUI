@@ -7,7 +7,6 @@ def launch_gui():
 
     win = QWidget()
     win.setWindowTitle('Hello World')
-    win.resize(250, 250)
-    win.show()
+    win.showMaximized()
 
     sys.exit(app.exec_())
