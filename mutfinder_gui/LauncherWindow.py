@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox
+from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QErrorMessage
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 
@@ -150,17 +150,45 @@ class LauncherWindow(QWidget):
 
     def launch_mutfinder(self):
         launch_options = {
-            "input_fasta": self.fasta_row.layout().itemAt(0).widget().text(),
+            "input_fasta": self.fasta_row.layout().itemAt(0).widget().text().strip(),
             "create_excel": self.excel_chk.isChecked(),
-            "output_excel": self.excel_row.layout().itemAt(0).widget().text(),
+            "output_excel": self.excel_row.layout().itemAt(0).widget().text().strip(),
             "create_tabular": self.tabular_chk.isChecked(),
-            "output_tabular": self.tabular_row.layout().itemAt(0).widget().text(),
+            "output_tabular": self.tabular_row.layout().itemAt(0).widget().text().strip(),
             "create_matrix": self.matrix_chk.isChecked(),
-            "output_matrix": self.matrix_row.layout().itemAt(0).widget().text()
+            "output_matrix": self.matrix_row.layout().itemAt(0).widget().text().strip()
         }
 
-        print("Launching MutFinder with options:")
+        def launch_error(msg):
+            print("Launch error:", msg)
+            error_dialog = QErrorMessage(self)
+            error_dialog.showMessage(msg)
+
+        if launch_options['input_fasta'] == "":
+            return launch_error("No input FASTA file selected")
+        if not launch_options['create_excel'] and not launch_options['create_tabular'] and not launch_options['create_matrix']:
+            return launch_error("No output selected")
+        if launch_options['create_excel'] and launch_options['output_excel'] == "":
+            return launch_error("No output Excel file selected")
+        if launch_options['create_tabular'] and launch_options['output_tabular'] == "":
+            return launch_error("No output Tabular file selected")
+        if launch_options['create_matrix'] and launch_options['output_matrix'] == "":
+            return launch_error("No output Matrix file selected")
+        
+        print("Launch options:")
         for key, value in launch_options.items():
-            print(f"\t{key}:\t{value}")
+            print(f"  {key:.<20}{value}")
+
+        cmd = "mutfinder "
+
+        if launch_options["create_excel"]:
+            cmd += "-x \"%s\" " % launch_options['output_excel']
+        if launch_options["create_tabular"]:
+            cmd += "-t \"%s\" " % launch_options['output_tabular']
+        if launch_options["create_matrix"]:
+            cmd += "-m \"%s\" " % launch_options['output_matrix']
+        cmd += launch_options['input_fasta']
+
+        print("Launching:", cmd)
 
     
