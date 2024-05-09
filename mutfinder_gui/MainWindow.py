@@ -2,6 +2,9 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QToolBar, QAction, QStyle, QTabWidget, QFileDialog
 from PyQt5 import QtCore
 
+from mutfinder_gui.SampleTreeTab import SampleTreeTab
+from mutfinder_gui.LauncherWindow import LauncherWindow
+
 
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
@@ -37,7 +40,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(toolbar)
 
         tabs = QTabWidget()
-        tab1 = QWidget()
+        tab1 = SampleTreeTab()
         tab2 = QWidget()
         tabs.addTab(tab1, "View #1")
         tabs.addTab(tab2, "View #2")
@@ -46,7 +49,11 @@ class MainWindow(QMainWindow):
 
 def launch_gui():
     app = QApplication(sys.argv)
-    win = MainWindow()
+    
+    # win = MainWindow()
+    # win.showMaximized()
 
-    win.showMaximized()
+    win = LauncherWindow()
+    win.show()
+
     sys.exit(app.exec_())
