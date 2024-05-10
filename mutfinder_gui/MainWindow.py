@@ -9,9 +9,9 @@ from mutfinder_gui.LauncherWindow import LauncherWindow
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.initUI()
+        self.init_ui()
     
-    def initUI(self):
+    def init_ui(self):
         self.setWindowTitle('MutFinder GUI')
         self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         

@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QErrorMessage
 from PyQt5.QtCore import Qt
-from PyQt5 import QtCore
+
+from mutfinder_gui.ProgressWindow import ProgressWindow
 
 
 class LauncherWindow(QWidget):
@@ -21,29 +22,30 @@ class LauncherWindow(QWidget):
         self.setFixedWidth(600)
 
         self.fasta_row = self.create_input_fasta_row()
+
         self.excel_row = self.create_output_excel_row()
-        self.tabular_row = self.create_output_tabular_row()
-        self.matrix_row = self.create_output_matrix_row()
-
-        self.excel_lbl = QLabel("Output XLSM:")
-        self.tabular_lbl = QLabel("Output TSV:")
-        self.matrix_lbl = QLabel("Output TSV:")
-
         self.excel_row.setEnabled(False)
+        self.excel_lbl = QLabel("Output XLSM:")
         self.excel_lbl.setEnabled(False)
+        
+        self.tabular_row = self.create_output_tabular_row()
         self.tabular_row.setEnabled(False)
+        self.tabular_lbl = QLabel("Output TSV:")
         self.tabular_lbl.setEnabled(False)
+        
+        self.matrix_row = self.create_output_matrix_row()
         self.matrix_row.setEnabled(False)
+        self.matrix_lbl = QLabel("Output TSV:")
         self.matrix_lbl.setEnabled(False)
 
         self.excel_chk = QCheckBox()
-        self.excel_chk.toggled.connect(lambda: self.excel_row.setEnabled(self.excel_chk.isChecked()) or self.excel_lbl.setEnabled(self.excel_chk.isChecked()))
+        self.excel_chk.toggled.connect(lambda: self.checkbox_tooggled(self.excel_chk, self.excel_lbl, self.excel_row))
         
         self.tabular_chk = QCheckBox()
-        self.tabular_chk.toggled.connect(lambda: self.tabular_row.setEnabled(self.tabular_chk.isChecked()) or self.tabular_lbl.setEnabled(self.tabular_chk.isChecked()))
+        self.tabular_chk.toggled.connect(lambda: self.checkbox_tooggled(self.tabular_chk, self.tabular_lbl, self.tabular_row))
         
         self.matrix_chk = QCheckBox()
-        self.matrix_chk.toggled.connect(lambda: self.matrix_row.setEnabled(self.matrix_chk.isChecked()) or self.matrix_lbl.setEnabled(self.matrix_chk.isChecked()))
+        self.matrix_chk.toggled.connect(lambda: self.checkbox_tooggled(self.matrix_chk, self.matrix_lbl, self.matrix_row))
 
         self.launch_btn = QPushButton("Launch")
         self.launch_btn.clicked.connect(self.launch_mutfinder)
@@ -59,6 +61,11 @@ class LauncherWindow(QWidget):
         layout.addRow("", self.launch_btn)
 
 
+    def checkbox_tooggled(self, checkbox, label, row):
+        row.setEnabled(checkbox.isChecked())
+        label.setEnabled(checkbox.isChecked())
+    
+
     def create_input_fasta_row(self):
         layout = QHBoxLayout()
         row = QWidget()
@@ -66,7 +73,7 @@ class LauncherWindow(QWidget):
 
         def browse_input_fasta():
             options = QFileDialog.Options()
-            fname, _ = QFileDialog.getOpenFileName(None, "Open input FASTA", "", "FASTA files (*.fasta,*.fas,*.fa);;All Files (*)", options=options)
+            fname, _ = QFileDialog.getOpenFileName(None, "Open input FASTA", "", "FASTA files (*.fasta *.fas *.fa);;All Files (*)", options=options)
             if fname:
                 line_edit.setText(fname)
 
@@ -88,9 +95,13 @@ class LauncherWindow(QWidget):
         row.setLayout(layout)
 
         def browse_output_excel():
-            options = QFileDialog.Options()
-            fname, _ = QFileDialog.getSaveFileName(None, "Save Excel output as...", "", "XLSM files (*.xlsm);;All Files (*)", options=options)
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix("xlsm")
+            fname, _ = dialog.getSaveFileName(None, "Save Excel output as...", "", "XLSM files (*.xlsm)")
+            
             if fname:
+                if not fname.endswith(".xlsm"):
+                    fname += ".xlsm"
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
@@ -110,9 +121,13 @@ class LauncherWindow(QWidget):
         row.setLayout(layout)
 
         def browse_output_tabular():
-            options = QFileDialog.Options()
-            fname, _ = QFileDialog.getSaveFileName(None, "Save Tabular output as...", "", "TSV files (*.tsv);;All Files (*)", options=options)
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix("tsv")
+            fname, _ = dialog.getSaveFileName(None, "Save Tabular output as...", "", "TSV files (*.tsv)")
+            
             if fname:
+                if not fname.endswith(".tsv"):
+                    fname += ".tsv"
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
@@ -132,9 +147,13 @@ class LauncherWindow(QWidget):
         row.setLayout(layout)
 
         def browse_output_matrix():
-            options = QFileDialog.Options()
-            fname, _ = QFileDialog.getSaveFileName(None, "Save Matrix output as...", "", "TSV files (*.tsv);;All Files (*)", options=options)
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix("tsv")
+            fname, _ = dialog.getSaveFileName(None, "Save Matrix output as...", "", "TSV files (*.tsv)")
+            
             if fname:
+                if not fname.endswith(".tsv"):
+                    fname += ".tsv"
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
@@ -179,16 +198,16 @@ class LauncherWindow(QWidget):
         for key, value in launch_options.items():
             print(f"  {key:.<20}{value}")
 
-        cmd = "mutfinder "
+        cmd = ["mutfinder"]
 
         if launch_options["create_excel"]:
-            cmd += "-x \"%s\" " % launch_options['output_excel']
+            cmd.extend(["-x", launch_options['output_excel']])
         if launch_options["create_tabular"]:
-            cmd += "-t \"%s\" " % launch_options['output_tabular']
+            cmd.extend(["-t", launch_options['output_tabular']])
         if launch_options["create_matrix"]:
-            cmd += "-m \"%s\" " % launch_options['output_matrix']
-        cmd += launch_options['input_fasta']
+            cmd.extend(["-m", launch_options['output_matrix']])
+        cmd.append(launch_options['input_fasta'])
 
         print("Launching:", cmd)
+        ProgressWindow(cmd).exec_()
 
-    
