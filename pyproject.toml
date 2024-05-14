@@ -1,9 +1,12 @@
 [project]
 name = "mutfinder_gui"
-version = "0.0.1"
+dynamic = ["version"]
 dependencies = [
     "pyqt5"
 ]
 
 [project.scripts]
 mutfinder_gui = "mutfinder_gui:launch"
+
+[tool.setuptools.dynamic]
+version = {attr = "mutfinder_gui.__version__"}
