@@ -78,7 +78,6 @@ class LauncherWindow(QWidget):
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
-        line_edit.setReadOnly(True)
 
         btn = QPushButton("Browse...")
         btn.clicked.connect(browse_input_fasta)
@@ -105,7 +104,6 @@ class LauncherWindow(QWidget):
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
-        line_edit.setReadOnly(True)
         btn = QPushButton("Browse...")
         btn.clicked.connect(browse_output_excel)
 
@@ -131,7 +129,6 @@ class LauncherWindow(QWidget):
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
-        line_edit.setReadOnly(True)
         btn = QPushButton("Browse...")
         btn.clicked.connect(browse_output_tabular)
 
@@ -157,7 +154,6 @@ class LauncherWindow(QWidget):
                 line_edit.setText(fname)
 
         line_edit = QLineEdit()
-        line_edit.setReadOnly(True)
         btn = QPushButton("Browse...")
         btn.clicked.connect(browse_output_matrix)
 
