@@ -78,7 +78,7 @@ class ProgressWindow(QDialog):
     def start_mutfinder(self):
         def log_start(pid):
             self.log_txt.append(f"Process started with PID {pid}")
-            self.log_txt.append("Stdout:\n")
+            self.log_txt.append("Program output:\n")
             self.log_txt.setTextColor(Qt.darkGreen)
         
         def log_end(returncode):
