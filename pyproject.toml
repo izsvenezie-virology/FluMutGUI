@@ -2,7 +2,8 @@
 name = "mutfinder_gui"
 dynamic = ["version"]
 dependencies = [
-    "pyqt5"
+    "pyqt5",
+    "mutfinder @ git+ssh://git@gitlab.izsvenezie.it/biv/flumut/mutfinder.git"
 ]
 
 [project.scripts]
