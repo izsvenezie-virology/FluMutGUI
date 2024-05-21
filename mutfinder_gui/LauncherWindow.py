@@ -38,6 +38,8 @@ class LauncherWindow(QWidget):
         self.matrix_lbl = QLabel("Output TSV:")
         self.matrix_lbl.setEnabled(False)
 
+        self.strict_mode_chk = QCheckBox()
+
         self.excel_chk = QCheckBox()
         self.excel_chk.toggled.connect(lambda: self.checkbox_tooggled(self.excel_chk, self.excel_lbl, self.excel_row))
         
@@ -51,6 +53,7 @@ class LauncherWindow(QWidget):
         self.launch_btn.clicked.connect(self.launch_mutfinder)
         
         layout.addRow("Input FASTA:", self.fasta_row)
+        layout.addRow("Strict mode:", self.strict_mode_chk)
         layout.addRow("Create Excel report:", self.excel_chk)
         layout.addRow(self.excel_lbl, self.excel_row)
         layout.addRow("Create Tabular report:", self.tabular_chk)
@@ -166,6 +169,7 @@ class LauncherWindow(QWidget):
     def launch_mutfinder(self):
         launch_options = {
             "input_fasta": self.fasta_row.layout().itemAt(0).widget().text().strip(),
+            "strict_mode": self.strict_mode_chk.isChecked(),
             "create_excel": self.excel_chk.isChecked(),
             "output_excel": self.excel_row.layout().itemAt(0).widget().text().strip(),
             "create_tabular": self.tabular_chk.isChecked(),
@@ -196,6 +200,8 @@ class LauncherWindow(QWidget):
 
         cmd = ["mutfinder"]
 
+        if launch_options["strict_mode"]:
+            cmd.append("-s")
         if launch_options["create_excel"]:
             cmd.extend(["-x", launch_options['output_excel']])
         if launch_options["create_tabular"]:
