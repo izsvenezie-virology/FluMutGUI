@@ -41,13 +41,13 @@ class LauncherWindow(QWidget):
         self.strict_mode_chk = QCheckBox()
 
         self.excel_chk = QCheckBox()
-        self.excel_chk.toggled.connect(lambda: self.checkbox_tooggled(self.excel_chk, self.excel_lbl, self.excel_row))
+        self.excel_chk.toggled.connect(lambda: self.checkbox_tooggled("excel"))
         
         self.tabular_chk = QCheckBox()
-        self.tabular_chk.toggled.connect(lambda: self.checkbox_tooggled(self.tabular_chk, self.tabular_lbl, self.tabular_row))
+        self.tabular_chk.toggled.connect(lambda: self.checkbox_tooggled("tabular"))
         
         self.matrix_chk = QCheckBox()
-        self.matrix_chk.toggled.connect(lambda: self.checkbox_tooggled(self.matrix_chk, self.matrix_lbl, self.matrix_row))
+        self.matrix_chk.toggled.connect(lambda: self.checkbox_tooggled("matrix"))
 
         self.launch_btn = QPushButton("Launch")
         self.launch_btn.clicked.connect(self.launch_mutfinder)
@@ -64,9 +64,22 @@ class LauncherWindow(QWidget):
         layout.addRow("", self.launch_btn)
 
 
-    def checkbox_tooggled(self, checkbox, label, row):
-        row.setEnabled(checkbox.isChecked())
-        label.setEnabled(checkbox.isChecked())
+    def checkbox_tooggled(self, target):
+        checkbox = self.excel_chk if target == "excel" else self.tabular_chk if target == "tabular" else self.matrix_chk
+        row = self.excel_row if target == "excel" else self.tabular_row if target == "tabular" else self.matrix_row
+        label = self.excel_lbl if target == "excel" else self.tabular_lbl if target == "tabular" else self.matrix_lbl
+
+        chk_state = checkbox.isChecked()
+        row.setEnabled(chk_state)
+        label.setEnabled(chk_state)
+
+        # If a FASTA path exists, take the basename and use it as the default output filename
+        fasta_text = self.fasta_row.layout().itemAt(0).widget().text()
+        curr_text = row.layout().itemAt(0).widget().text()
+        if chk_state and curr_text == "" and fasta_text != "":
+            basename = fasta_text.rsplit('.', 1)[0]
+            suffix = ".xlsm" if target == "excel" else "_markers.tsv" if target == "tabular" else "_mutations.tsv"
+            row.layout().itemAt(0).widget().setText(basename + suffix)
     
 
     def create_input_fasta_row(self):
