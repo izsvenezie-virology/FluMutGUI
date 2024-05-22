@@ -1,7 +1,7 @@
 from mutfinder_gui.MainWindow import launch_gui
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 def launch():
     launch_gui()

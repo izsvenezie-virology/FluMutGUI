@@ -28,46 +28,46 @@ class LauncherWindow(QWidget):
         self.excel_lbl = QLabel("Output XLSM:")
         self.excel_lbl.setEnabled(False)
         
-        self.tabular_row = self.create_output_tabular_row()
-        self.tabular_row.setEnabled(False)
-        self.tabular_lbl = QLabel("Output TSV:")
-        self.tabular_lbl.setEnabled(False)
+        self.markers_row = self.create_output_markers_row()
+        self.markers_row.setEnabled(False)
+        self.markers_lbl = QLabel("Output TSV:")
+        self.markers_lbl.setEnabled(False)
         
-        self.matrix_row = self.create_output_matrix_row()
-        self.matrix_row.setEnabled(False)
-        self.matrix_lbl = QLabel("Output TSV:")
-        self.matrix_lbl.setEnabled(False)
+        self.mutations_row = self.create_output_mutations_row()
+        self.mutations_row.setEnabled(False)
+        self.mutations_lbl = QLabel("Output TSV:")
+        self.mutations_lbl.setEnabled(False)
 
-        self.strict_mode_chk = QCheckBox()
+        self.relaxed_mode_chk = QCheckBox()
 
         self.excel_chk = QCheckBox()
         self.excel_chk.toggled.connect(lambda: self.checkbox_tooggled("excel"))
         
-        self.tabular_chk = QCheckBox()
-        self.tabular_chk.toggled.connect(lambda: self.checkbox_tooggled("tabular"))
+        self.markers_chk = QCheckBox()
+        self.markers_chk.toggled.connect(lambda: self.checkbox_tooggled("markers"))
         
-        self.matrix_chk = QCheckBox()
-        self.matrix_chk.toggled.connect(lambda: self.checkbox_tooggled("matrix"))
+        self.mutations_chk = QCheckBox()
+        self.mutations_chk.toggled.connect(lambda: self.checkbox_tooggled("mutations"))
 
         self.launch_btn = QPushButton("Launch")
         self.launch_btn.clicked.connect(self.launch_mutfinder)
         
         layout.addRow("Input FASTA:", self.fasta_row)
-        layout.addRow("Strict mode:", self.strict_mode_chk)
+        layout.addRow("Relaxed mode:", self.relaxed_mode_chk)
         layout.addRow("Create Excel report:", self.excel_chk)
         layout.addRow(self.excel_lbl, self.excel_row)
-        layout.addRow("Create Tabular report:", self.tabular_chk)
-        layout.addRow(self.tabular_lbl, self.tabular_row)
-        layout.addRow("Create Matrix report:", self.matrix_chk)
-        layout.addRow(self.matrix_lbl, self.matrix_row)
+        layout.addRow("Create Markers report:", self.markers_chk)
+        layout.addRow(self.markers_lbl, self.markers_row)
+        layout.addRow("Create Mutations report:", self.mutations_chk)
+        layout.addRow(self.mutations_lbl, self.mutations_row)
         layout.addRow("", None)
         layout.addRow("", self.launch_btn)
 
 
     def checkbox_tooggled(self, target):
-        checkbox = self.excel_chk if target == "excel" else self.tabular_chk if target == "tabular" else self.matrix_chk
-        row = self.excel_row if target == "excel" else self.tabular_row if target == "tabular" else self.matrix_row
-        label = self.excel_lbl if target == "excel" else self.tabular_lbl if target == "tabular" else self.matrix_lbl
+        checkbox = self.excel_chk if target == "excel" else self.markers_chk if target == "markers" else self.mutations_chk
+        row = self.excel_row if target == "excel" else self.markers_row if target == "markers" else self.mutations_row
+        label = self.excel_lbl if target == "excel" else self.markers_lbl if target == "markers" else self.mutations_lbl
 
         chk_state = checkbox.isChecked()
         row.setEnabled(chk_state)
@@ -78,7 +78,7 @@ class LauncherWindow(QWidget):
         curr_text = row.layout().itemAt(0).widget().text()
         if chk_state and curr_text == "" and fasta_text != "":
             basename = fasta_text.rsplit('.', 1)[0]
-            suffix = ".xlsm" if target == "excel" else "_markers.tsv" if target == "tabular" else "_mutations.tsv"
+            suffix = ".xlsm" if target == "excel" else "_markers.tsv" if target == "markers" else "_mutations.tsv"
             row.layout().itemAt(0).widget().setText(basename + suffix)
     
 
@@ -129,15 +129,15 @@ class LauncherWindow(QWidget):
         return row
 
 
-    def create_output_tabular_row(self):
+    def create_output_markers_row(self):
         layout = QHBoxLayout()
         row = QWidget()
         row.setLayout(layout)
 
-        def browse_output_tabular():
+        def browse_output_markers():
             dialog = QFileDialog()
             dialog.setDefaultSuffix("tsv")
-            fname, _ = dialog.getSaveFileName(None, "Save Tabular output as...", "", "TSV files (*.tsv)")
+            fname, _ = dialog.getSaveFileName(None, "Save Markers output as...", "", "TSV files (*.tsv)")
             
             if fname:
                 if not fname.endswith(".tsv"):
@@ -146,7 +146,7 @@ class LauncherWindow(QWidget):
 
         line_edit = QLineEdit()
         btn = QPushButton("Browse...")
-        btn.clicked.connect(browse_output_tabular)
+        btn.clicked.connect(browse_output_markers)
 
         layout.addWidget(line_edit)
         layout.addWidget(btn)
@@ -154,15 +154,15 @@ class LauncherWindow(QWidget):
         return row
     
 
-    def create_output_matrix_row(self):
+    def create_output_mutations_row(self):
         layout = QHBoxLayout()
         row = QWidget()
         row.setLayout(layout)
 
-        def browse_output_matrix():
+        def browse_output_mutations():
             dialog = QFileDialog()
             dialog.setDefaultSuffix("tsv")
-            fname, _ = dialog.getSaveFileName(None, "Save Matrix output as...", "", "TSV files (*.tsv)")
+            fname, _ = dialog.getSaveFileName(None, "Save Mutations output as...", "", "TSV files (*.tsv)")
             
             if fname:
                 if not fname.endswith(".tsv"):
@@ -171,7 +171,7 @@ class LauncherWindow(QWidget):
 
         line_edit = QLineEdit()
         btn = QPushButton("Browse...")
-        btn.clicked.connect(browse_output_matrix)
+        btn.clicked.connect(browse_output_mutations)
 
         layout.addWidget(line_edit)
         layout.addWidget(btn)
@@ -182,13 +182,13 @@ class LauncherWindow(QWidget):
     def launch_mutfinder(self):
         launch_options = {
             "input_fasta": self.fasta_row.layout().itemAt(0).widget().text().strip(),
-            "strict_mode": self.strict_mode_chk.isChecked(),
+            "relaxed_mode": self.relaxed_mode_chk.isChecked(),
             "create_excel": self.excel_chk.isChecked(),
             "output_excel": self.excel_row.layout().itemAt(0).widget().text().strip(),
-            "create_tabular": self.tabular_chk.isChecked(),
-            "output_tabular": self.tabular_row.layout().itemAt(0).widget().text().strip(),
-            "create_matrix": self.matrix_chk.isChecked(),
-            "output_matrix": self.matrix_row.layout().itemAt(0).widget().text().strip()
+            "create_markers": self.markers_chk.isChecked(),
+            "output_markers": self.markers_row.layout().itemAt(0).widget().text().strip(),
+            "create_mutations": self.mutations_chk.isChecked(),
+            "output_mutations": self.mutations_row.layout().itemAt(0).widget().text().strip()
         }
 
         def launch_error(msg):
@@ -198,14 +198,14 @@ class LauncherWindow(QWidget):
 
         if launch_options['input_fasta'] == "":
             return launch_error("No input FASTA file selected")
-        if not launch_options['create_excel'] and not launch_options['create_tabular'] and not launch_options['create_matrix']:
+        if not launch_options['create_excel'] and not launch_options['create_markers'] and not launch_options['create_mutations']:
             return launch_error("No output selected")
         if launch_options['create_excel'] and launch_options['output_excel'] == "":
             return launch_error("No output Excel file selected")
-        if launch_options['create_tabular'] and launch_options['output_tabular'] == "":
-            return launch_error("No output Tabular file selected")
-        if launch_options['create_matrix'] and launch_options['output_matrix'] == "":
-            return launch_error("No output Matrix file selected")
+        if launch_options['create_markers'] and launch_options['output_markers'] == "":
+            return launch_error("No output Markers file selected")
+        if launch_options['create_mutations'] and launch_options['output_mutations'] == "":
+            return launch_error("No output Mutations file selected")
         
         print("Launch options:")
         for key, value in launch_options.items():
@@ -213,16 +213,15 @@ class LauncherWindow(QWidget):
 
         cmd = ["mutfinder"]
 
-        if launch_options["strict_mode"]:
-            cmd.append("-s")
+        if launch_options["relaxed_mode"]:
+            cmd.append("-r")
         if launch_options["create_excel"]:
             cmd.extend(["-x", launch_options['output_excel']])
-        if launch_options["create_tabular"]:
-            cmd.extend(["-t", launch_options['output_tabular']])
-        if launch_options["create_matrix"]:
-            cmd.extend(["-m", launch_options['output_matrix']])
+        if launch_options["create_markers"]:
+            cmd.extend(["-m", launch_options['output_markers']])
+        if launch_options["create_mutations"]:
+            cmd.extend(["-M", launch_options['output_mutations']])
         cmd.append(launch_options['input_fasta'])
 
         print("Launching:", cmd)
         ProgressWindow(cmd).exec_()
-
