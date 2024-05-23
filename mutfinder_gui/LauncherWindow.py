@@ -20,7 +20,7 @@ class LauncherWindow(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Launch MutFinder')
         self.setMinimumWidth(600)
-        self.setFixedHeight(350)
+        self.setFixedHeight(300)
 
         self.fasta_row = self.create_input_fasta_row()
 
@@ -85,6 +85,7 @@ class LauncherWindow(QWidget):
 
     def create_input_fasta_row(self):
         layout = QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
         row = QWidget()
         row.setLayout(layout)
 
@@ -107,6 +108,7 @@ class LauncherWindow(QWidget):
 
     def create_output_excel_row(self):
         layout = QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
         row = QWidget()
         row.setLayout(layout)
 
@@ -132,6 +134,7 @@ class LauncherWindow(QWidget):
 
     def create_output_markers_row(self):
         layout = QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
         row = QWidget()
         row.setLayout(layout)
 
@@ -157,6 +160,7 @@ class LauncherWindow(QWidget):
 
     def create_output_mutations_row(self):
         layout = QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
         row = QWidget()
         row.setLayout(layout)
 
