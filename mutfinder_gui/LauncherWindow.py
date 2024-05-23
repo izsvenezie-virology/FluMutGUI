@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QErrorMessage
+from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox
 from PyQt5.QtCore import Qt
 
 from mutfinder_gui.ProgressWindow import ProgressWindow
@@ -19,7 +19,8 @@ class LauncherWindow(QWidget):
 
         self.setLayout(layout)
         self.setWindowTitle('Launch MutFinder')
-        self.setFixedWidth(600)
+        self.setMinimumWidth(600)
+        self.setFixedHeight(350)
 
         self.fasta_row = self.create_input_fasta_row()
 
@@ -193,8 +194,7 @@ class LauncherWindow(QWidget):
 
         def launch_error(msg):
             print("Launch error:", msg)
-            error_dialog = QErrorMessage(self)
-            error_dialog.showMessage(msg)
+            QMessageBox.warning(self, 'Missing parameter', msg)
 
         if launch_options['input_fasta'] == "":
             return launch_error("No input FASTA file selected")
@@ -224,4 +224,4 @@ class LauncherWindow(QWidget):
         cmd.append(launch_options['input_fasta'])
 
         print("Launching:", cmd)
-        ProgressWindow(cmd).exec_()
+        ProgressWindow(cmd).exec()

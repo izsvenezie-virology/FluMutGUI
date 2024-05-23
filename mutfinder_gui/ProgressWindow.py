@@ -40,6 +40,7 @@ class ProgressWindow(QDialog):
         super().__init__()
         self.init_ui()
         self.setModal(True)
+        self.setWindowFlags(Qt.WindowCloseButtonHint)
 
         self.mutfinder_arguments = mutfinder_arguments
 
@@ -120,4 +121,3 @@ class ProgressWindow(QDialog):
             self.cancel_btn.setText("Close")
             self.progress_bar.setRange(0, 100)
             self.progress_bar.setValue(0)
-

@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
 
 def launch_gui():
     app = QApplication(sys.argv)
+    app.setStyle('fusion')
     
     # win = MainWindow()
     # win.showMaximized()
@@ -56,4 +57,4 @@ def launch_gui():
     win = LauncherWindow()
     win.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
