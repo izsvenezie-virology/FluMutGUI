@@ -55,7 +55,7 @@ class ProgressWindow(QDialog):
         self.setWindowTitle('Executing MutFinder')
         self.setFixedWidth(400)
 
-        self.progress_lbl = QLabel("Executing MutFinder...")
+        self.progress_lbl = QLabel("Executing MutFinder command...")
         layout.addWidget(self.progress_lbl)
 
         self.progress_bar = QProgressBar()
@@ -112,7 +112,7 @@ class ProgressWindow(QDialog):
     def cancel_mutfinder(self):
         if self.cancel_btn.text() == "Close":
             self.close()
-            quit()
+            # quit()
         else:
             self.log_txt.setTextColor(Qt.black)
             self.log_txt.append("Killing MutFinder process...\n")

@@ -52,6 +52,9 @@ class LauncherWindow(QWidget):
 
         self.launch_btn = QPushButton("Launch")
         self.launch_btn.clicked.connect(self.launch_mutfinder)
+
+        self.update_btn = QPushButton('Update database')
+        self.update_btn.clicked.connect(self.update_database)
         
         layout.addRow("Input FASTA:", self.fasta_row)
         layout.addRow("Relaxed mode:", self.relaxed_mode_chk)
@@ -63,6 +66,8 @@ class LauncherWindow(QWidget):
         layout.addRow(self.mutations_lbl, self.mutations_row)
         layout.addRow("", None)
         layout.addRow("", self.launch_btn)
+        layout.addRow('', None)
+        layout.addRow('', self.update_btn)
 
 
     def checkbox_tooggled(self, target):
@@ -229,3 +234,8 @@ class LauncherWindow(QWidget):
 
         print("Launching:", cmd)
         ProgressWindow(cmd).exec()
+
+    def update_database(self):
+        progr_window = ProgressWindow(['mutfinder', '--update'])
+        progr_window.setWindowTitle('Updating MutFinder database...')
+        progr_window.exec()
