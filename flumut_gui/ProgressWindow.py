@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QLabel, QDialog, QProgressBar, QTextEdit, QVBoxLayou
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
 
-class MutFinderWorker(QThread):
+class FluMutWorker(QThread):
     started = pyqtSignal(int)
     output = pyqtSignal(str)
     error = pyqtSignal(str)
@@ -20,42 +20,42 @@ class MutFinderWorker(QThread):
         self.wait()
     
     def run(self):
-        mutfinder_process = subprocess.Popen(self.cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.started.emit(mutfinder_process.pid)
+        flumut_process = subprocess.Popen(self.cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.started.emit(flumut_process.pid)
         
         while True:
-            line = mutfinder_process.stdout.readline().strip()
+            line = flumut_process.stdout.readline().strip()
             if not line:
                 break
             self.output.emit(line)
         
-        mutfinder_process.wait()
-        self.error.emit(mutfinder_process.stderr.read())
-        self.finished.emit(mutfinder_process.returncode)
+        flumut_process.wait()
+        self.error.emit(flumut_process.stderr.read())
+        self.finished.emit(flumut_process.returncode)
         
 
 
 class ProgressWindow(QDialog):
-    def __init__(self, mutfinder_arguments: List[str]) -> None:
+    def __init__(self, flumut_arguments: List[str]) -> None:
         super().__init__()
         self.init_ui()
         self.setModal(True)
         self.setWindowFlags(Qt.WindowCloseButtonHint)
 
-        self.mutfinder_arguments = mutfinder_arguments
+        self.flumut_arguments = flumut_arguments
 
-        self.log_txt.append("Executing MutFinder...")
-        self.start_mutfinder()
+        self.log_txt.append("Executing FluMut...")
+        self.start_flumut()
     
 
     def init_ui(self):
         layout = QVBoxLayout()
 
         self.setLayout(layout)
-        self.setWindowTitle('Executing MutFinder')
+        self.setWindowTitle('Executing FluMut')
         self.setFixedWidth(400)
 
-        self.progress_lbl = QLabel("Executing MutFinder command...")
+        self.progress_lbl = QLabel("Executing FluMut command...")
         layout.addWidget(self.progress_lbl)
 
         self.progress_bar = QProgressBar()
@@ -73,10 +73,10 @@ class ProgressWindow(QDialog):
 
         self.cancel_btn = QPushButton("Cancel")
         layout.addWidget(self.cancel_btn)
-        self.cancel_btn.clicked.connect(self.cancel_mutfinder)
+        self.cancel_btn.clicked.connect(self.cancel_flumut)
     
 
-    def start_mutfinder(self):
+    def start_flumut(self):
         def log_start(pid):
             self.log_txt.append(f"Process started with PID {pid}")
             self.log_txt.append("Program output:\n")
@@ -97,26 +97,26 @@ class ProgressWindow(QDialog):
             self.log_txt.append(line)
             self.log_txt.setTextColor(Qt.black)
 
-        self.log_txt.append("Launching with arguments: " + " ".join(self.mutfinder_arguments))
-        self.mutfinder_thread = MutFinderWorker(self.mutfinder_arguments)
-        self.mutfinder_thread.started.connect(log_start)
-        self.mutfinder_thread.output.connect(log_stdout)
-        self.mutfinder_thread.error.connect(log_stderr)
-        self.mutfinder_thread.finished.connect(log_end)
+        self.log_txt.append("Launching with arguments: " + " ".join(self.flumut_arguments))
+        self.flumut_thread = FluMutWorker(self.flumut_arguments)
+        self.flumut_thread.started.connect(log_start)
+        self.flumut_thread.output.connect(log_stdout)
+        self.flumut_thread.error.connect(log_stderr)
+        self.flumut_thread.finished.connect(log_end)
         
         self.progress_bar.setRange(0, 0)
         self.progress_bar.setValue(0)
-        self.mutfinder_thread.start()
+        self.flumut_thread.start()
 
 
-    def cancel_mutfinder(self):
+    def cancel_flumut(self):
         if self.cancel_btn.text() == "Close":
             self.close()
             # quit()
         else:
             self.log_txt.setTextColor(Qt.black)
-            self.log_txt.append("Killing MutFinder process...\n")
-            self.mutfinder_thread.terminate()
+            self.log_txt.append("Killing FluMut process...\n")
+            self.flumut_thread.terminate()
             self.log_txt.append("Process terminated.")
             self.cancel_btn.setText("Close")
             self.progress_bar.setRange(0, 100)

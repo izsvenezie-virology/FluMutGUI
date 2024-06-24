@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox
 from PyQt5.QtCore import Qt
 
-from mutfinder_gui.ProgressWindow import ProgressWindow
+from flumut_gui.ProgressWindow import ProgressWindow
 
 
 class LauncherWindow(QWidget):
@@ -18,7 +18,7 @@ class LauncherWindow(QWidget):
         layout.setHorizontalSpacing(15)
 
         self.setLayout(layout)
-        self.setWindowTitle('Launch MutFinder')
+        self.setWindowTitle('Launch FluMut')
         self.setMinimumWidth(600)
         self.setFixedHeight(300)
 
@@ -51,7 +51,7 @@ class LauncherWindow(QWidget):
         self.mutations_chk.toggled.connect(lambda: self.checkbox_tooggled("mutations"))
 
         self.launch_btn = QPushButton("Launch")
-        self.launch_btn.clicked.connect(self.launch_mutfinder)
+        self.launch_btn.clicked.connect(self.launch_flumut)
 
         self.update_btn = QPushButton('Update database')
         self.update_btn.clicked.connect(self.update_database)
@@ -189,7 +189,7 @@ class LauncherWindow(QWidget):
         return row
 
 
-    def launch_mutfinder(self):
+    def launch_flumut(self):
         launch_options = {
             "input_fasta": self.fasta_row.layout().itemAt(0).widget().text().strip(),
             "relaxed_mode": self.relaxed_mode_chk.isChecked(),
@@ -220,7 +220,7 @@ class LauncherWindow(QWidget):
         for key, value in launch_options.items():
             print(f"  {key:.<20}{value}")
 
-        cmd = ["mutfinder"]
+        cmd = ["flumut"]
 
         if launch_options["relaxed_mode"]:
             cmd.append("-r")
@@ -236,6 +236,6 @@ class LauncherWindow(QWidget):
         ProgressWindow(cmd).exec()
 
     def update_database(self):
-        progr_window = ProgressWindow(['mutfinder', '--update'])
-        progr_window.setWindowTitle('Updating MutFinder database...')
+        progr_window = ProgressWindow(['flumut', '--update'])
+        progr_window.setWindowTitle('Updating FluMut database...')
         progr_window.exec()

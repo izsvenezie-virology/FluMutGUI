@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "MutFinderGUI debug",
+            "name": "FluMutGUI debug",
             "type": "debugpy",
             "request": "launch",
-            "module": "mutfinder_gui.__init__"
+            "module": "flumut_gui.__init__"
         }
     ]
 }

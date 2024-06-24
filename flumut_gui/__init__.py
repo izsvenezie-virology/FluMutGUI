@@ -1,4 +1,4 @@
-from mutfinder_gui.MainWindow import launch_gui
+from flumut_gui.MainWindow import launch_gui
 
 
 __version__ = "1.1.0"

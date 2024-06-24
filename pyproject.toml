@@ -1,13 +1,13 @@
 [project]
-name = "mutfinder_gui"
+name = "flumut_gui"
 dynamic = ["version"]
 dependencies = [
     "pyqt5",
-    "mutfinder @ git+ssh://git@gitlab.izsvenezie.it/biv/flumut/mutfinder.git"
+    "flumut @ git+https://github.com/izsvenezie-virology/FluMut"
 ]
 
 [project.scripts]
-mutfinder_gui = "mutfinder_gui:launch"
+flumut_gui = "flumut_gui:launch"
 
 [tool.setuptools.dynamic]
-version = {attr = "mutfinder_gui.__version__"}
+version = {attr = "flumut_gui.__version__"}

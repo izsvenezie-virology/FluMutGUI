@@ -1,6 +1,6 @@
-# MutFinder GUI
+# FluMut GUI
 
-This is a graphical front-end for MutFinder.
+This is a graphical front-end for FluMut.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Ensure you have the following dependencies installed:
 
 - python >= 3.10
 - pip >= 22.0.2
-- mutfinder >= 0.3.0
+- flumut >= 0.3.0
 
 Installation steps (from a terminal):
 
@@ -17,4 +17,4 @@ Installation steps (from a terminal):
 
 ## Usage
 
-Run `mutfinder_gui` on a terminal and the graphical window will pop up.
+Run `flumut_gui` on a terminal and the graphical window will pop up.
