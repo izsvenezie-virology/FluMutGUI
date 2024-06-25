@@ -1,7 +1,7 @@
 from flumut_gui.MainWindow import launch_gui
 
 
-__version__ = "1.1.0"
+__version__ = "2.0.0"
 
 def launch():
     launch_gui()

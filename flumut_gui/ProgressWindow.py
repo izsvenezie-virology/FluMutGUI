@@ -20,7 +20,15 @@ class FluMutWorker(QThread):
         self.wait()
     
     def run(self):
-        flumut_process = subprocess.Popen(self.cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            flumut_process = subprocess.Popen(self.cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except Exception as e:
+            self.error.emit("Error: the process failed to start!")
+            self.error.emit("Details:")
+            self.error.emit(str(e))
+            self.finished.emit(-1)
+            return
+        
         self.started.emit(flumut_process.pid)
         
         while True:

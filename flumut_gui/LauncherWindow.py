@@ -268,8 +268,8 @@ class LauncherWindow(QWidget):
 
         if launch_options['input_fasta'] == "":
             return launch_error("No input FASTA file selected")
-        if not launch_options['create_excel'] and not launch_options['create_markers'] and not launch_options['create_mutations']:
-            return launch_error("No output selected")
+        if not launch_options['create_excel'] and not launch_options['create_markers'] and not launch_options['create_mutations'] and not launch_options['create_literature']:
+            return launch_error("At least one output type must be selected")
         if launch_options['create_excel'] and launch_options['output_excel'] == "":
             return launch_error("No output Excel file selected")
         if launch_options['create_markers'] and launch_options['output_markers'] == "":
