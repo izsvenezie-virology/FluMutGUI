@@ -3,7 +3,7 @@ name = "flumut_gui"
 dynamic = ["version"]
 dependencies = [
     "pyqt5",
-    "flumut"
+    "flumut >= 0.5.2"
 ]
 
 [project.scripts]
