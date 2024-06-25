@@ -38,6 +38,11 @@ class LauncherWindow(QWidget):
         self.mutations_row.setEnabled(False)
         self.mutations_lbl = QLabel("Output TSV:")
         self.mutations_lbl.setEnabled(False)
+        
+        self.literature_row = self.create_output_literature_row()
+        self.literature_row.setEnabled(False)
+        self.literature_lbl = QLabel("Output TSV:")
+        self.literature_lbl.setEnabled(False)
 
         self.relaxed_mode_chk = QCheckBox()
 
@@ -50,6 +55,9 @@ class LauncherWindow(QWidget):
         self.mutations_chk = QCheckBox()
         self.mutations_chk.toggled.connect(lambda: self.checkbox_tooggled("mutations"))
 
+        self.literature_chk = QCheckBox()
+        self.literature_chk.toggled.connect(lambda: self.checkbox_tooggled("literature"))
+
         self.launch_btn = QPushButton("Launch")
         self.launch_btn.clicked.connect(self.launch_flumut)
 
@@ -60,10 +68,13 @@ class LauncherWindow(QWidget):
         layout.addRow("Relaxed mode:", self.relaxed_mode_chk)
         layout.addRow("Create Excel report:", self.excel_chk)
         layout.addRow(self.excel_lbl, self.excel_row)
+        
         layout.addRow("Create Markers report:", self.markers_chk)
         layout.addRow(self.markers_lbl, self.markers_row)
         layout.addRow("Create Mutations report:", self.mutations_chk)
         layout.addRow(self.mutations_lbl, self.mutations_row)
+        layout.addRow("Create Literature report:", self.literature_chk)
+        layout.addRow(self.literature_lbl, self.literature_row)
         layout.addRow("", None)
         layout.addRow("", self.launch_btn)
         layout.addRow('', None)
@@ -71,9 +82,33 @@ class LauncherWindow(QWidget):
 
 
     def checkbox_tooggled(self, target):
-        checkbox = self.excel_chk if target == "excel" else self.markers_chk if target == "markers" else self.mutations_chk
-        row = self.excel_row if target == "excel" else self.markers_row if target == "markers" else self.mutations_row
-        label = self.excel_lbl if target == "excel" else self.markers_lbl if target == "markers" else self.mutations_lbl
+        checkbox =  {
+            "excel": self.excel_chk,
+            "markers": self.markers_chk,
+            "mutations": self.mutations_chk,
+            "literature": self.literature_chk
+        }[target]
+        
+        row = {
+            "excel": self.excel_row,
+            "markers": self.markers_row,
+            "mutations": self.mutations_row,
+            "literature": self.literature_row
+        }[target]
+
+        label = {
+            "excel": self.excel_lbl,
+            "markers": self.markers_lbl,
+            "mutations": self.mutations_lbl,
+            "literature": self.literature_lbl
+        }[target]
+        
+        file_suffix = {
+            "excel": ".xlsm",
+            "markers": "_markers.tsv",
+            "mutations": "_mutations.tsv",
+            "literature": "_literature.tsv"
+        }[target]
 
         chk_state = checkbox.isChecked()
         row.setEnabled(chk_state)
@@ -84,8 +119,7 @@ class LauncherWindow(QWidget):
         curr_text = row.layout().itemAt(0).widget().text()
         if chk_state and curr_text == "" and fasta_text != "":
             basename = fasta_text.rsplit('.', 1)[0]
-            suffix = ".xlsm" if target == "excel" else "_markers.tsv" if target == "markers" else "_mutations.tsv"
-            row.layout().itemAt(0).widget().setText(basename + suffix)
+            row.layout().itemAt(0).widget().setText(basename + file_suffix)
     
 
     def create_input_fasta_row(self):
@@ -187,6 +221,31 @@ class LauncherWindow(QWidget):
         layout.addWidget(btn)
 
         return row
+    
+
+    def create_output_literature_row(self):
+        layout = QHBoxLayout()
+        row = QWidget()
+        row.setLayout(layout)
+
+        def browse_output_literature():
+            dialog = QFileDialog()
+            dialog.setDefaultSuffix("tsv")
+            fname, _ = dialog.getSaveFileName(None, "Save Literature output as...", "", "TSV files (*.tsv)")
+            
+            if fname:
+                if not fname.endswith(".tsv"):
+                    fname += ".tsv"
+                line_edit.setText(fname)
+
+        line_edit = QLineEdit()
+        btn = QPushButton("Browse...")
+        btn.clicked.connect(browse_output_literature)
+
+        layout.addWidget(line_edit)
+        layout.addWidget(btn)
+
+        return row
 
 
     def launch_flumut(self):
@@ -198,7 +257,9 @@ class LauncherWindow(QWidget):
             "create_markers": self.markers_chk.isChecked(),
             "output_markers": self.markers_row.layout().itemAt(0).widget().text().strip(),
             "create_mutations": self.mutations_chk.isChecked(),
-            "output_mutations": self.mutations_row.layout().itemAt(0).widget().text().strip()
+            "output_mutations": self.mutations_row.layout().itemAt(0).widget().text().strip(),
+            "create_literature": self.literature_chk.isChecked(),
+            "output_literature": self.literature_row.layout().itemAt(0).widget().text().strip()
         }
 
         def launch_error(msg):
@@ -215,6 +276,8 @@ class LauncherWindow(QWidget):
             return launch_error("No output Markers file selected")
         if launch_options['create_mutations'] and launch_options['output_mutations'] == "":
             return launch_error("No output Mutations file selected")
+        if launch_options['create_literature'] and launch_options['output_literature'] == "":
+            return launch_error("No output Literature file selected")
         
         print("Launch options:")
         for key, value in launch_options.items():
@@ -230,10 +293,14 @@ class LauncherWindow(QWidget):
             cmd.extend(["-m", launch_options['output_markers']])
         if launch_options["create_mutations"]:
             cmd.extend(["-M", launch_options['output_mutations']])
+        if launch_options["create_literature"]:
+            cmd.extend(["-l", launch_options['output_literature']])
+        
         cmd.append(launch_options['input_fasta'])
 
         print("Launching:", cmd)
         ProgressWindow(cmd).exec()
+
 
     def update_database(self):
         progr_window = ProgressWindow(['flumut', '--update'])
