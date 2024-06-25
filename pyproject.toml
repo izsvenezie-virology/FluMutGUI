@@ -3,7 +3,7 @@ name = "flumut_gui"
 dynamic = ["version"]
 dependencies = [
     "pyqt5",
-    "flumut @ git+https://github.com/izsvenezie-virology/FluMut"
+    "flumut"
 ]
 
 [project.scripts]

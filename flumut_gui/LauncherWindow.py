@@ -20,7 +20,7 @@ class LauncherWindow(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Launch FluMut')
         self.setMinimumWidth(600)
-        self.setFixedHeight(300)
+        self.setFixedHeight(450)
 
         self.fasta_row = self.create_input_fasta_row()
 
