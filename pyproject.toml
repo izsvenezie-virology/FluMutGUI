@@ -1,10 +1,24 @@
 [project]
 name = "flumut_gui"
 dynamic = ["version"]
+description = "Graphical frontend for the FluMut bioinformatic tool"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Alessandro Sartori", email = "alex.sartori1997@gmail.com" },
+    { name = "Edoardo Giussani", email = "egiussani@izsvenezie.it" }
+]
+keywords = [ "flumut", "flumut GUI", "molecular markers", "Influenza A Virus", "AIV"]
 dependencies = [
     "pyqt5",
     "flumut >= 0.5.2"
 ]
+
+[project.urls]
+"Homepage" = "https://izsvenezie-virology.github.io/FluMut"
+"Bug Reports" = "https://github.com/izsvenezie-virology/FluMutGUI/issues"
+"Source" = "https://github.com/izsvenezie-virology/FluMutGUI"
+
 
 [project.scripts]
 flumut_gui = "flumut_gui:launch"
