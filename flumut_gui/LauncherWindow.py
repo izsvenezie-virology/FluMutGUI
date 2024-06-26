@@ -225,6 +225,7 @@ class LauncherWindow(QWidget):
 
     def create_output_literature_row(self):
         layout = QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
         row = QWidget()
         row.setLayout(layout)
 
