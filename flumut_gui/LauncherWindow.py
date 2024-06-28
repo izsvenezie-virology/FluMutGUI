@@ -1,7 +1,9 @@
+import sys
 from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox
 from PyQt5.QtCore import Qt
 
 from flumut_gui.ProgressWindow import ProgressWindow
+import flumut
 
 
 class LauncherWindow(QWidget):
@@ -284,26 +286,41 @@ class LauncherWindow(QWidget):
         for key, value in launch_options.items():
             print(f"  {key:.<20}{value}")
 
-        cmd = ["flumut"]
-
-        if launch_options["relaxed_mode"]:
-            cmd.append("-r")
-        if launch_options["create_excel"]:
-            cmd.extend(["-x", launch_options['output_excel']])
+        fasta = open(launch_options["input_fasta"], 'r', encoding="utf-8")
         if launch_options["create_markers"]:
-            cmd.extend(["-m", launch_options['output_markers']])
+            markers = open(launch_options["output_markers"], 'w', encoding="utf-8")
+        else:
+            markers = None
         if launch_options["create_mutations"]:
-            cmd.extend(["-M", launch_options['output_mutations']])
+            mutations = open(launch_options["output_mutations"], 'w', encoding="utf-8")
+        else:
+            mutations = None
         if launch_options["create_literature"]:
-            cmd.extend(["-l", launch_options['output_literature']])
-        
-        cmd.append(launch_options['input_fasta'])
+            literature = open(launch_options["output_literature"], 'w', encoding="utf-8")
+        else:
+            literature = None
 
-        print("Launching:", cmd)
-        ProgressWindow(cmd).exec()
+        flumut.analyze(None, fasta , None,
+                markers, mutations, literature, launch_options["output_excel"],
+                launch_options["relaxed_mode"])
+
+        fasta.close()
+        if markers:
+            markers.close()
+        if mutations:
+            mutations.close()
+        if literature:
+            literature.close()
+
+        QMessageBox.information(self, 'Analysis complete', f'Completed analysis without errors')
 
 
     def update_database(self):
-        progr_window = ProgressWindow(['flumut', '--update'])
-        progr_window.setWindowTitle('Updating FluMut database...')
-        progr_window.exec()
+        if self.is_pyinstaller():
+            flumut.update_db_file()
+        else:
+            flumut.update()
+        QMessageBox.information(self, 'Updated FluMutDB', f'Updated FluMutDB to version {flumut.versions()["FluMutDB"]}')
+
+    def is_pyinstaller(self):
+        return getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
