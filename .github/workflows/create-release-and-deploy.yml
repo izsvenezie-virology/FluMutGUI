@@ -1,0 +1,120 @@
+name: Create release and deploy FluMutGUI
+run-name: ${{ github.actor }} is releasing ${{ github.ref }}
+
+on: 
+  push:
+    tags:
+      - "v.*"
+
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    name: Build FluMutGUI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+      - name: Build FluMutGUI
+        run: python -m build
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+
+
+  create-installers:
+    name: Create FluMutGUI installers
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install . pyinstaller
+      - name: Run Pyinstaller
+        run: | 
+          python -m PyInstaller .\flumut_gui\__init__.py --name flumut-gui --hidden-import flumut --hidden-import flumutdb --additional-hooks-dir .\.hooks\ --clean --noconfirm -w
+      - name: Install NSIS
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
+          scoop update
+          scoop bucket add extras
+          scoop install nsis
+      - name: Generate installer
+        run: |
+          nsis flumut-gui.nsi
+      - name: Upload examples
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: FluMutGUIInstaller.exe
+          if-no-files-found: error
+
+
+  release:
+    name: Create release on GitHub
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [build, create-installers]
+
+    steps:
+      - name: Download dist
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          name: installer
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            FluMutGUIInstaller.exe
+            dist/*
+
+
+  pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: pypi-release
+    needs: release
+
+    steps:
+    - name: Download dist artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
