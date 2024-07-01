@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox
+from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox, QApplication
 from PyQt5.QtCore import Qt
 
 from flumut_gui.ProgressWindow import ProgressWindow
@@ -287,6 +287,8 @@ class LauncherWindow(QWidget):
             print(f"  {key:.<20}{value}")
 
         fasta = open(launch_options["input_fasta"], 'r', encoding="utf-8")
+        if not launch_options["create_excel"]:
+            launch_options["output_excel"] = None
         if launch_options["create_markers"]:
             markers = open(launch_options["output_markers"], 'w', encoding="utf-8")
         else:
@@ -300,9 +302,11 @@ class LauncherWindow(QWidget):
         else:
             literature = None
 
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         flumut.analyze(None, fasta , None,
                 markers, mutations, literature, launch_options["output_excel"],
                 launch_options["relaxed_mode"])
+        QApplication.restoreOverrideCursor()
 
         fasta.close()
         if markers:

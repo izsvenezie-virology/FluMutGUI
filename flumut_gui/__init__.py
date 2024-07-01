@@ -1,4 +1,4 @@
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 
 from flumut_gui.MainWindow import launch_gui
 
