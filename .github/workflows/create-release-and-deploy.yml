@@ -1,5 +1,5 @@
 name: Create release and deploy FluMutGUI
-run-name: ${{ github.actor }} is releasing ${{ github.ref }}
+run-name: ${{ github.actor }} is releasing ${{ github.ref_name }}
 
 on: 
   push:
@@ -56,7 +56,7 @@ jobs:
           pip install . pyinstaller
       - name: Run Pyinstaller
         run: | 
-          python -m PyInstaller .\flumut_gui\__init__.py --name flumut-gui --hidden-import flumut --hidden-import flumutdb --additional-hooks-dir .\.hooks\ --clean --noconfirm -w
+          python -m PyInstaller .\flumut_gui\__init__.py --name FluMutGUI --hidden-import flumut --hidden-import flumutdb --additional-hooks-dir .\.hooks\ --clean --noconfirm -w
       - name: Install NSIS
         run: |
           iwr -useb get.scoop.sh -outfile 'install.ps1'
@@ -66,12 +66,12 @@ jobs:
           scoop install nsis
       - name: Generate installer
         run: |
-          nsis flumut-gui.nsi
+          makensis /DVERSION=${{ github.ref_name }} flumut-gui.nsi 
       - name: Upload examples
         uses: actions/upload-artifact@v4
         with:
           name: installer
-          path: FluMutGUIInstaller.exe
+          path: FluMutGUI_Installer.exe
           if-no-files-found: error
 
 
@@ -97,7 +97,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            FluMutGUIInstaller.exe
+            FluMutGUI_Installer.exe
             dist/*
 
 
