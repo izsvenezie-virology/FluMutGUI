@@ -1,8 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox, QApplication
+from PyQt5.QtWidgets import QWidget, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox, QApplication, QLabel
 from PyQt5.QtCore import Qt
 
 from flumut_gui.ProgressWindow import ProgressWindow
+from flumut_gui import __version__
 import flumut
 
 
@@ -80,6 +81,29 @@ class SelectFileRow(QWidget):
         layout.addWidget(self._btn_browse)
 
 
+class VersionRow(QWidget):
+    def __init__(self, parent) -> None:
+        super().__init__(parent)
+        self._init_ui()
+
+    def _init_ui(self):
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+        layout.setContentsMargins(0,0,0,20)
+
+        self._lbl_versions = QLabel()
+        self._lbl_versions.setAlignment(Qt.AlignRight)
+        self._lbl_versions.setStyleSheet("QLabel {color : grey}")
+        self._lbl_versions.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.update_text()
+        layout.addWidget(self._lbl_versions)
+
+    def update_text(self):
+        versions = flumut.versions()
+        self._lbl_versions.setText(f'FluMutGUI {__version__}; FluMut {versions["FluMut"]}; FluMutDB {versions  ["FluMutDB"]}')
+
+
 class LauncherWindow(QWidget):
     def __init__(self) -> None:
         super().__init__()
@@ -97,6 +121,9 @@ class LauncherWindow(QWidget):
         self.setWindowTitle('Launch FluMut')
         self.setMinimumWidth(600)
         self.setFixedHeight(450)
+
+        self.versions_row = VersionRow(self)
+        layout.addRow(None, self.versions_row)
 
         self.fasta_row = SelectFileRow(self, True)
         self.fasta_row.set_switchable(False)
@@ -180,6 +207,7 @@ class LauncherWindow(QWidget):
             flumut.update_db_file()
         else:
             flumut.update()
+        self.versions_row.update_text()
         QMessageBox.information(self, 'Updated FluMutDB', f'Updated FluMutDB to version {flumut.versions()["FluMutDB"]}')
 
     def is_pyinstaller(self):
