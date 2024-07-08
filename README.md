@@ -7,7 +7,7 @@
 
 FluMut is an open-source tool designed to search for molecular markers with potential impact on the biological characteristics of Influenza A viruses of the A(H5N1) subtype, starting from complete or partial nucleotide genome sequences.
 
-FluMutGUI is a graphical interface for FluMut, to make it easier to use.
+FluMutGUI is an intuitive and user-friendly graphical interface for FluMut.
 
 For the complete documentation please visit [FluMut site](https://izsvenezie-virology.github.io/FluMut/).
 
@@ -15,9 +15,10 @@ For the complete documentation please visit [FluMut site](https://izsvenezie-vir
 
 ### Installer
 This is the easiest way to install FluMutGUI.
-At the moment is available only for Windows, but we plan to release soon also installers for MacOS and Linux.
+This is currently available only for Windows.
+Installers for MacOS and Linux are under development.
 
-Download the installer for your OS and follow instructions to install FluMutGUI:
+Dowonload the installer for your Operating System from the links below, double-click the FluMutGUI installer, and follow the onscreen installation instructions.
 - [Windows](https://github.com/izsvenezie-virology/FluMutGUI/releases/latest/download/FluMutGUI_Installer.exe)
 - MacOS (available soon)
 - Linux (available soon)
@@ -38,14 +39,19 @@ pip install flumut-gui
 FluMutGUI is very simple to use:
 1. Update the database to latest version
 1. Select the FASTA file you want to analyze (learn more [here](https://izsvenezie-virology.github.io/FluMut/docs/usage/input-file))
-1.  Select which [outputs](https://izsvenezie-virology.github.io/FluMut/docs/output) you want (and change the file name if you want)
+1. Select which [outputs](https://izsvenezie-virology.github.io/FluMut/docs/output) you want
 1. Start the analysis
 
 ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/GUI-usage.png)
 
-Wait, when the analysis ends you'll get a message.
+FluMut will analyze your samples and will create the selected outputs.
+When it finishes check the messages and then you can close the program.
 
 ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/GUI-usage-done.png)
+
+
+>*__Important:__* FluMutGUI has the [`--skip-unmatch-names`](https://izsvenezie-virology.github.io/FluMut/docs/usage/usage-cli#options) and [`--skip-unknown-segments`](https://izsvenezie-virology.github.io/FluMut/docs/usage/usage-cli#options) options flagged by default.
+>Read the log for a list of skipped sequences.
 
 
 ## Cite FluMutGUI
