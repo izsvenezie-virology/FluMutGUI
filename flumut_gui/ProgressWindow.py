@@ -5,6 +5,7 @@ import collections
 
 from PyQt5.QtWidgets import QDialog, QProgressBar, QTextEdit, QVBoxLayout, QPushButton, QMessageBox
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5 import QtGui
 
 
 class StdIO():
@@ -127,20 +128,23 @@ class ProgressWindow(QDialog):
             if exit_code == 0:
                 self.log_txt.setTextColor(Qt.black)
                 self.log_txt.append('FluMut terminated successfully.')
+                self.set_progress_bar_color(98, 201, 27)
                 self.progress_bar.setValue(self.progress_bar.maximum())
             elif exit_code == 1:
                 self.log_txt.setTextColor(Qt.red)
                 self.log_txt.append('FluMut terminated with errors.')
+                self.set_progress_bar_color(238, 1, 1)
             elif exit_code == 2:
                 self.log_txt.setTextColor(Qt.red)
                 self.log_txt.append('FluMut terminated by the user.')
+                self.set_progress_bar_color(238, 1, 1)
             else:
                 self.log_txt.setTextColor(Qt.red)
                 self.log_txt.append('FluMut terminated with unknown exit code.')
             self.cancel_btn.setText("Close")
 
         def handle_error(error):
-            self.progress_bar.setStyleSheet("QProgressBar::chunk { background-color: red;}")
+            self.set_progress_bar_color(238, 1, 1)
             self.log_txt.setTextColor(Qt.red)
             self.log_txt.append(f'{error.__class__.__name__}: {str(error)}')
             QMessageBox.warning(self, error.__class__.__name__, str(error))
@@ -177,4 +181,9 @@ class ProgressWindow(QDialog):
             self.log_txt.append("Stopping FluMut analysis...")
             self.logger_thread.terminate()
             self.flumut_thread.terminate()
-            self.progress_bar.setStyleSheet("QProgressBar::chunk { background-color: red;}")
+
+    def set_progress_bar_color(self, r, g, b):
+        custom_palette = QtGui.QPalette()
+        custom_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(r, g, b))
+
+        self.progress_bar.setPalette(custom_palette)
