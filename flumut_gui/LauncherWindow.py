@@ -39,7 +39,7 @@ class SelectFileRow(QWidget):
             if not source_path:
                 return
             basename = source_path.rsplit('.', 1)[0]
-            self._txt_path.setText(basename + suffix)
+            self.txt_path.setText(basename + suffix)
         self._chk_enable.toggled.connect(set_default_name)
 
     def set_browse_parameters(self, title, filter):
@@ -47,7 +47,7 @@ class SelectFileRow(QWidget):
         self._browse_filter = filter
 
     def get_file_path(self):
-        return self._txt_path.text().strip()
+        return self.txt_path.text().strip()
 
     def get_opened_file(self):
         if not self.get_file_path():
@@ -60,23 +60,23 @@ class SelectFileRow(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self._chk_enable = QCheckBox()
-        self._txt_path = QLineEdit()
+        self.txt_path = QLineEdit()
         self._btn_browse = QPushButton("Browse...")
 
         def switch_enable():
             self._is_enabled_row = self._chk_enable.isChecked()
-            self._txt_path.setEnabled(self._is_enabled_row)
+            self.txt_path.setEnabled(self._is_enabled_row)
             self._btn_browse.setEnabled(self._is_enabled_row)
             if not self._is_enabled_row:
-                self._txt_path.setText(None)
+                self.txt_path.setText(None)
 
         def browse_input():
             fname, _ = QFileDialog().getOpenFileName(None, self._browse_title, '', self._browse_filter)
-            self._txt_path.setText(fname)
+            self.txt_path.setText(fname)
 
         def browse_output():
             fname, _ = QFileDialog().getSaveFileName(None, self._browse_title, '', self._browse_filter)
-            self._txt_path.setText(fname)
+            self.txt_path.setText(fname)
 
         self._chk_enable.toggled.connect(switch_enable)
         self._chk_enable.setChecked(True)
@@ -84,7 +84,7 @@ class SelectFileRow(QWidget):
         self._open_mode = 'r' if is_input else 'w'
 
         layout.addWidget(self._chk_enable)
-        layout.addWidget(self._txt_path)
+        layout.addWidget(self.txt_path)
         layout.addWidget(self._btn_browse)
 
 
@@ -111,6 +111,45 @@ class VersionRow(QWidget):
         self._lbl_versions.setText(f'FluMutGUI {__version__}; FluMut {versions["FluMut"]}; FluMutDB {versions  ["FluMutDB"]}')
 
 
+class AdvancedOptions(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QFormLayout()
+        layout.setFormAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        layout.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        layout.setVerticalSpacing(10)
+        layout.setHorizontalSpacing(15)
+
+        self.setLayout(layout)
+
+        self.relaxed_chk = QCheckBox()
+        layout.addRow('Relaxed:', self.relaxed_chk)
+
+        self.name_regex_txt = QLineEdit()
+        layout.addRow('Name regex:', self.name_regex_txt)
+
+        self.custom_db_row = SelectFileRow(self, True)
+        self.custom_db_row.set_switchable(False)
+        self.custom_db_row.set_browse_parameters('Select custom markers database', 'SQLite files (*.sqlite *sqlite3)')
+        layout.addRow('Custom markers DB:', self.custom_db_row)
+
+        self.skip_unmatch_names_chk = QCheckBox()
+        layout.addRow('Skip unmatched names:', self.skip_unmatch_names_chk)
+
+        self.skip_unknown_segments_chk = QCheckBox()
+        layout.addRow('Skip unknown segments:', self.skip_unknown_segments_chk)
+
+    def reset(self):
+        self.relaxed_chk.setChecked(False)
+        self.name_regex_txt.setText('')
+        self.custom_db_row.txt_path.setText('')
+        self.skip_unmatch_names_chk.setChecked(False)
+        self.skip_unknown_segments_chk.setChecked(False)
+
+
 class LauncherWindow(QWidget):
     def __init__(self) -> None:
         sys.excepthook = excepthook
@@ -126,8 +165,6 @@ class LauncherWindow(QWidget):
 
         self.setLayout(layout)
         self.setWindowTitle('Launch FluMut')
-        self.setMinimumWidth(600)
-        self.setFixedHeight(320)
 
         self.versions_row = VersionRow(self)
         layout.addRow(None, self.versions_row)
@@ -161,6 +198,14 @@ class LauncherWindow(QWidget):
         self.literature_row.set_browse_parameters("Save Literature output as...", "TSV files (*.tsv)")
         layout.addRow("Literature output:", self.literature_row)
 
+        self.options_chk = QCheckBox()
+        self.options_chk.toggled.connect(self.toggle_advanced_options)
+        layout.addRow('Advanced options', self.options_chk)
+
+        self.options_wdg = AdvancedOptions()
+        self.toggle_advanced_options()
+        layout.addRow(self.options_wdg)
+
         self.launch_btn = QPushButton("Launch")
         self.launch_btn.clicked.connect(self.launch_flumut)
         layout.addRow(None, self.launch_btn)
@@ -169,19 +214,28 @@ class LauncherWindow(QWidget):
         self.update_btn.clicked.connect(self.update_database)
         layout.addRow(None, self.update_btn)
 
+        self.setFixedHeight(self.sizeHint().height())
+        self.setMinimumWidth(600)
+
+    def toggle_advanced_options(self):
+        visible = self.options_chk.isChecked()
+        self.options_wdg.reset()
+        self.options_wdg.setVisible(visible)
+        self.setFixedHeight(self.sizeHint().height())
+
     def launch_flumut(self):
         try:
             args_dict = {
-                'name_regex': None,
+                'name_regex': self.options_wdg.name_regex_txt.text().strip(),
                 'fasta_file': self.fasta_row.get_opened_file(),
-                'db_file': None,
+                'db_file': self.options_wdg.custom_db_row.get_file_path(),
                 'markers_output': self.markers_row.get_opened_file(),
                 'mutations_output': self.mutations_row.get_opened_file(),
                 'literature_output': self.literature_row.get_opened_file(),
                 'excel_output': self.excel_row.get_file_path(),
-                'relaxed': False,
-                'skip_unmatch_names': True,
-                'skip_unknown_segments': True,
+                'relaxed': self.options_wdg.relaxed_chk.isChecked(),
+                'skip_unmatch_names': self.options_wdg.skip_unmatch_names_chk.isChecked(),
+                'skip_unknown_segments': self.options_wdg.skip_unknown_segments_chk.isChecked(),
                 'debug': True
             }
         except FileNotFoundError as e:
