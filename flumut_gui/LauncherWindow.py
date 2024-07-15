@@ -31,10 +31,10 @@ class SelectFileRow(QWidget):
 
     def set_default_value(self, source, suffix):
         def set_default_name():
-            source_path = source.get_file_path()
+            source_path = source.get_text()
             if not self._is_enabled_row:
                 return
-            if self.get_file_path():
+            if self.get_text():
                 return
             if not source_path:
                 return
@@ -46,13 +46,15 @@ class SelectFileRow(QWidget):
         self._browse_title = title
         self._browse_filter = filter
 
-    def get_file_path(self):
+    def get_text(self):
+        if not self.is_enabled_row():
+            return None
         return self.txt_path.text().strip()
 
     def get_opened_file(self):
-        if not self.get_file_path():
+        if not self.get_text():
             return None
-        return open(self.get_file_path(), self._open_mode, encoding="utf-8")
+        return open(self.get_text(), self._open_mode, encoding="utf-8")
 
     def _init_ui(self, is_input: bool):
         layout = QHBoxLayout()
@@ -96,7 +98,7 @@ class VersionRow(QWidget):
     def _init_ui(self):
         layout = QHBoxLayout()
         self.setLayout(layout)
-        layout.setContentsMargins(0, 0, 0, 20)
+        layout.setContentsMargins(0, 0, 0, 10)
 
         self._lbl_versions = QLabel()
         self._lbl_versions.setAlignment(Qt.AlignRight)
@@ -108,7 +110,7 @@ class VersionRow(QWidget):
 
     def update_text(self):
         versions = flumut.versions()
-        self._lbl_versions.setText(f'FluMutGUI {__version__}; FluMut {versions["FluMut"]}; FluMutDB {versions  ["FluMutDB"]}')
+        self._lbl_versions.setText(f'FluMutGUI {__version__}; FluMut {versions["FluMut"]}; FluMutDB {versions["FluMutDB"]}')
 
 
 class AdvancedOptions(QWidget):
@@ -128,11 +130,11 @@ class AdvancedOptions(QWidget):
         self.relaxed_chk = QCheckBox()
         layout.addRow('Relaxed:', self.relaxed_chk)
 
-        self.name_regex_txt = QLineEdit()
+        self.name_regex_txt = SelectFileRow(self, True)
+        self.name_regex_txt._btn_browse.setVisible(False)
         layout.addRow('Name regex:', self.name_regex_txt)
 
         self.custom_db_row = SelectFileRow(self, True)
-        self.custom_db_row.set_switchable(False)
         self.custom_db_row.set_browse_parameters('Select custom markers database', 'SQLite files (*.sqlite *sqlite3)')
         layout.addRow('Custom markers DB:', self.custom_db_row)
 
@@ -144,8 +146,8 @@ class AdvancedOptions(QWidget):
 
     def reset(self):
         self.relaxed_chk.setChecked(False)
-        self.name_regex_txt.setText('')
-        self.custom_db_row.txt_path.setText('')
+        self.name_regex_txt.set_enabled_row(False)
+        self.custom_db_row.set_enabled_row(False)
         self.skip_unmatch_names_chk.setChecked(False)
         self.skip_unknown_segments_chk.setChecked(False)
 
@@ -226,13 +228,13 @@ class LauncherWindow(QWidget):
     def launch_flumut(self):
         try:
             args_dict = {
-                'name_regex': self.options_wdg.name_regex_txt.text().strip(),
+                'name_regex': self.options_wdg.name_regex_txt.get_text(),
                 'fasta_file': self.fasta_row.get_opened_file(),
-                'db_file': self.options_wdg.custom_db_row.get_file_path(),
+                'db_file': self.options_wdg.custom_db_row.get_text(),
                 'markers_output': self.markers_row.get_opened_file(),
                 'mutations_output': self.mutations_row.get_opened_file(),
                 'literature_output': self.literature_row.get_opened_file(),
-                'excel_output': self.excel_row.get_file_path(),
+                'excel_output': self.excel_row.get_text(),
                 'relaxed': self.options_wdg.relaxed_chk.isChecked(),
                 'skip_unmatch_names': self.options_wdg.skip_unmatch_names_chk.isChecked(),
                 'skip_unknown_segments': self.options_wdg.skip_unknown_segments_chk.isChecked(),
@@ -269,14 +271,16 @@ class LauncherWindow(QWidget):
 
     def update_database(self):
         QApplication.setOverrideCursor(Qt.WaitCursor)
+        old_version = flumut.versions()["FluMutDB"]
         if self.is_pyinstaller():
             flumut.update_db_file()
         else:
             flumut.update()
         self.versions_row.update_text()
         QApplication.restoreOverrideCursor()
-        QMessageBox.information(self, 'Updated FluMutDB',
-                                f'Updated FluMutDB to version {flumut.versions()["FluMutDB"]}')
+        new_version = flumut.versions()["FluMutDB"]
+        msg = f'Already to latest FluMutDB version: {new_version}' if old_version == new_version else f'Updated FluMutDB to version {new_version}'
+        QMessageBox.information(self, 'Updated FluMutDB', msg)
 
     def is_pyinstaller(self):
         return getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
