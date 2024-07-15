@@ -248,15 +248,20 @@ class LauncherWindow(QWidget):
 
         if not args_dict['fasta_file']:
             return launch_error("No input FASTA file selected")
-        if not args_dict['excel_output'] and not args_dict['markers_output'] and not args_dict['mutations_output'] and not args_dict['literature_output']:
+        if not self.excel_row.is_enabled_row() and not self.markers_row.is_enabled_row() and not self.mutations_row.is_enabled_row() and not self.literature_row.is_enabled_row():
+            self.excel_row._chk_enable.setFocus()
             return launch_error("At least one output type must be selected")
         if self.excel_row.is_enabled_row() and not args_dict['excel_output']:
+            self.excel_row.txt_path.setFocus()
             return launch_error("No output Excel file selected")
         if self.markers_row.is_enabled_row() and not args_dict['markers_output']:
+            self.markers_row.txt_path.setFocus()
             return launch_error("No output Markers file selected")
         if self.mutations_row.is_enabled_row() and not args_dict['mutations_output']:
+            self.mutations_row.txt_path.setFocus()
             return launch_error("No output Mutations file selected")
         if self.literature_row.is_enabled_row() and not args_dict['literature_output']:
+            self.literature_row.txt_path.setFocus()
             return launch_error("No output Literature file selected")
 
         ProgressWindow(args_dict).exec()
