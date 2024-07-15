@@ -11,7 +11,7 @@ authors = [
 keywords = [ "flumut", "flumut GUI", "molecular markers", "Influenza A Virus", "AIV"]
 dependencies = [
     "pyqt5",
-    "flumut >= 0.6.1"
+    "flumut >= 0.6.3"
 ]
 
 [project.urls]
@@ -21,7 +21,7 @@ dependencies = [
 
 
 [project.scripts]
-flumut_gui = "flumut_gui:launch"
+flumut-gui = "flumut_gui:launch"
 
 [tool.setuptools.dynamic]
 version = {attr = "flumut_gui.__version__"}
