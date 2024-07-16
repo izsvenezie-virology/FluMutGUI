@@ -50,8 +50,10 @@ When it finishes check the messages and then you can close the program.
 ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/GUI-usage-done.png)
 
 
->*__Important:__* FluMutGUI has the [`--skip-unmatch-names`](https://izsvenezie-virology.github.io/FluMut/docs/usage/usage-cli#options) and [`--skip-unknown-segments`](https://izsvenezie-virology.github.io/FluMut/docs/usage/usage-cli#options) options flagged by default.
->Read the log for a list of skipped sequences.
+# Advanced options
+You can use all [advanced options](./usage-cli#options) from FluMut checking the `Advanced options` flag.
+
+![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/GUI-options.png)
 
 
 ## Cite FluMutGUI
