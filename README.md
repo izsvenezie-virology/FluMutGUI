@@ -4,7 +4,6 @@
 
 [![install with pip](https://img.shields.io/badge/install%20with-pip-brightgreen.svg)](https://pypi.org/project/flumut-gui/)
 
-
 FluMut is an open-source tool designed to search for molecular markers with potential impact on the biological characteristics of Influenza A viruses of the A(H5N1) subtype, starting from complete or partial nucleotide genome sequences.
 
 FluMutGUI is an intuitive and user-friendly graphical interface for FluMut.
@@ -14,29 +13,36 @@ For the complete documentation please visit [FluMut site](https://izsvenezie-vir
 ## Installation
 
 ### Installer
+
 This is the easiest way to install FluMutGUI.
 This is currently available only for Windows.
 Installers for MacOS and Linux are under development.
 
 Dowonload the installer for your Operating System from the links below, double-click the FluMutGUI installer, and follow the onscreen installation instructions.
+
 - [Windows](https://github.com/izsvenezie-virology/FluMutGUI/releases/latest/download/FluMutGUI_Installer.exe)
 - MacOS (available soon)
 - Linux (available soon)
 
 ### Pip
+
 FluMutGUI is available also on [PyPI](https://pypi.org/project/flumut-gui/).
 This option is available for Windows, MacOS and Linux.
 Before installing FluMut via Pip you need:
+
 - [Python](https://www.python.org/downloads/)
 - [Pip](https://pypi.org/project/pip/) (often packed with Python)
 
 Then, you can install FluMutGUI with this command:
+
 ```
 pip install flumut-gui
 ```
 
 ## Usage
+
 FluMutGUI is very simple to use:
+
 1. Update the database to latest version
 1. Select the FASTA file you want to analyze (learn more [here](https://izsvenezie-virology.github.io/FluMut/docs/usage/input-file))
 1. Select which [outputs](https://izsvenezie-virology.github.io/FluMut/docs/output) you want
@@ -49,20 +55,20 @@ When it finishes check the messages and then you can close the program.
 
 ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/GUI-usage-done.png)
 
-
 # Advanced options
+
 You can use all [advanced options](./usage-cli#options) from FluMut checking the `Advanced options` flag.
 
 ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/GUI-options.png)
 
-
 ## Cite FluMutGUI
-We are currently writing the paper. 
-Until the publication please cite the FluMut GitHub repository:
 
-[https://github.com/izsvenezie-virology/FluMut](https://github.com/izsvenezie-virology/FluMut)
+If you use FluMutGUI, please cite:
+
+> Giussani, E., Sartori, A. et al. (2025). FluMut: a tool for mutation surveillance in highly pathogenic H5N1 genomes. Virus Evolution, [10.1093/ve/veaf011](https://doi.org/10.1093/ve/veaf011).
 
 ## License
+
 FluMutGUI is licensed under the GNU Affero v3 license (see [LICENSE](LICENSE)).
 
 # Fundings
@@ -71,5 +77,5 @@ This work was supported by FLU-SWITCH Era-Net ICRAD (grant agreement No 862605) 
 
 ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/Logo-Flu-Switch.png) ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/Logo-Inf-act.jpg) ![](https://github.com/izsvenezie-virology/FluMut/blob/main/docs/images/Logo-eu.png)
 
->Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Health and Digital Executive Agency (HEDEA). 
->Neither the European Union nor the granting authority can be held responsible for them
+> Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Health and Digital Executive Agency (HEDEA).
+> Neither the European Union nor the granting authority can be held responsible for them
