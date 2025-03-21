@@ -1,11 +1,16 @@
 import sys
 import traceback
-from PyQt5.QtWidgets import QWidget, QFileDialog, QFormLayout, QLineEdit, QHBoxLayout, QPushButton, QCheckBox, QMessageBox, QApplication, QLabel
-from PyQt5.QtCore import Qt
+from pathlib import Path
 
-from flumut_gui.ProgressWindow import ProgressWindow
-from flumut_gui import __version__
+
 import flumut
+from PyQt5.QtCore import QSettings, Qt
+from PyQt5.QtWidgets import (QApplication, QCheckBox, QFileDialog, QFormLayout,
+                             QHBoxLayout, QLabel, QLineEdit, QMessageBox,
+                             QPushButton, QWidget)
+
+from flumut_gui import __version__
+from flumut_gui.ProgressWindow import ProgressWindow
 
 
 def excepthook(exc_type, exc_value, exc_tb):
@@ -74,11 +79,13 @@ class SelectFileRow(QWidget):
 
         def browse_input():
             fname, _ = QFileDialog().getOpenFileName(None, self._browse_title, '', self._browse_filter)
-            self.txt_path.setText(fname)
+            if fname:
+                self.txt_path.setText(fname)
 
         def browse_output():
             fname, _ = QFileDialog().getSaveFileName(None, self._browse_title, '', self._browse_filter)
-            self.txt_path.setText(fname)
+            if fname:
+                self.txt_path.setText(fname)
 
         self._chk_enable.toggled.connect(switch_enable)
         self._chk_enable.setChecked(True)
@@ -110,7 +117,8 @@ class VersionRow(QWidget):
 
     def update_text(self):
         versions = flumut.versions()
-        self._lbl_versions.setText(f'FluMutGUI {__version__}; FluMut {versions["FluMut"]}; FluMutDB {versions["FluMutDB"]}')
+        self._lbl_versions.setText(
+            f'FluMutGUI {__version__}; FluMut {versions["FluMut"]}; FluMutDB {versions["FluMutDB"]}')
 
 
 class AdvancedOptions(QWidget):
@@ -157,6 +165,7 @@ class LauncherWindow(QWidget):
         sys.excepthook = excepthook
         super().__init__()
         self.init_ui()
+        self.restore_last_session()
 
     def init_ui(self):
         layout = QFormLayout()
@@ -289,3 +298,16 @@ class LauncherWindow(QWidget):
 
     def is_pyinstaller(self):
         return getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+
+    def restore_last_session(self):
+        settings = QSettings('IZSVenezie-virology', 'FluMutGUI')
+        filedialog_dir = settings.value('filedialog_dir', str(Path.home()))
+
+        QFileDialog().setDirectory(filedialog_dir)
+
+    def closeEvent(self, a0):
+        settings = QSettings('IZSVenezie-virology', 'FluMutGUI')
+
+        settings.setValue('filedialog_dir', QFileDialog().directory().absolutePath())
+
+        return super().closeEvent(a0)

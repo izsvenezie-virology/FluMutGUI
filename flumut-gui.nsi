@@ -85,4 +85,5 @@ Section "Uninstall"
     RMDir "$INSTDIR"
 
     DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\FluMutGUI"
+    DeleteRegKey HKCU "Software\IZSVenezie-virology\FluMutGUI"
 SectionEnd
