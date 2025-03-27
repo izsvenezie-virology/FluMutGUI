@@ -1,27 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "flumut_gui"
-dynamic = ["version"]
 description = "Graphical frontend for the FluMut bioinformatic tool"
-readme = "README.md"
-license = { file = "LICENSE" }
 authors = [
     { name = "Alessandro Sartori", email = "alex.sartori1997@gmail.com" },
     { name = "Edoardo Giussani", email = "egiussani@izsvenezie.it" }
 ]
 keywords = [ "flumut", "flumut GUI", "molecular markers", "Influenza A Virus", "AIV"]
+dynamic = ["version"]
+
+requires-python = ">=3.7"
 dependencies = [
     "pyqt5",
-    "flumut >= 0.6.3"
+    "flumut >= 0.6.3",
+    "importlib-resources >= 1.3",
 ]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+file = "LICENSE"
+content-type = "text-markdown"
 
 [project.urls]
 "Homepage" = "https://izsvenezie-virology.github.io/FluMut"
 "Bug Reports" = "https://github.com/izsvenezie-virology/FluMutGUI/issues"
 "Source" = "https://github.com/izsvenezie-virology/FluMutGUI"
 
-
 [project.scripts]
 flumut-gui = "flumut_gui:launch"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "flumut_gui.__version__"}

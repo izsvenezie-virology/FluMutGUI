@@ -2,9 +2,10 @@ import sys
 import traceback
 from pathlib import Path
 
-
 import flumut
+from importlib_resources import files
 from PyQt5.QtCore import QSettings, Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QApplication, QCheckBox, QFileDialog, QFormLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMessageBox,
                              QPushButton, QWidget)
@@ -175,7 +176,8 @@ class LauncherWindow(QWidget):
         layout.setHorizontalSpacing(15)
 
         self.setLayout(layout)
-        self.setWindowTitle('Launch FluMut')
+        self.setWindowTitle('FluMut')
+        self.setWindowIcon(QIcon(str(files('flumut_gui').joinpath('data', 'flumut_icon.ico'))))
 
         self.versions_row = VersionRow(self)
         layout.addRow(None, self.versions_row)

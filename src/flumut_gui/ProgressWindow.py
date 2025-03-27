@@ -1,17 +1,19 @@
-import re
-import flumut
-import contextlib
 import collections
+import contextlib
+import re
 
-from PyQt5.QtWidgets import QDialog, QProgressBar, QTextEdit, QVBoxLayout, QPushButton, QMessageBox
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+import flumut
+from importlib_resources import files
 from PyQt5 import QtGui
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtWidgets import (QDialog, QMessageBox, QProgressBar, QPushButton,
+                             QTextEdit, QVBoxLayout)
 
 
 class StdIO():
     def __init__(self) -> None:
         self.buffer = collections.deque()
-    
+
     def readline(self):
         if len(self.buffer) == 0:
             return None
@@ -76,7 +78,7 @@ class FluMutOutputReader(QThread):
             line = self.stderr_stream.readline()
             if line:
                 self.stderr.emit(line)
-    
+
     def stop(self):
         self._stop = True
 
@@ -98,6 +100,7 @@ class ProgressWindow(QDialog):
 
         self.setLayout(layout)
         self.setWindowTitle('Executing FluMut')
+        self.setWindowIcon(QtGui.QIcon(str(files('flumut_gui').joinpath('data', 'flumut_icon.ico'))))
         self.setMinimumWidth(450)
         self.setMinimumHeight(300)
 
@@ -166,7 +169,7 @@ class ProgressWindow(QDialog):
         self.flumut_thread.started.connect(handle_start)
         self.flumut_thread.ended.connect(handle_end)
         self.flumut_thread.error.connect(handle_error)
-        
+
         self.logger_thread = FluMutOutputReader(self.stderr_stream)
         self.logger_thread.stderr.connect(log_stderr)
 
