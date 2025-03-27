@@ -1,47 +1,47 @@
 name: Create release and deploy FluMutGUI
 run-name: ${{ github.actor }} is releasing ${{ github.ref_name }}
 
-on: 
+on:
   push:
     tags:
       - "v.*"
 
   workflow_dispatch:
 
-
 jobs:
-  build:
-    name: Build FluMutGUI
+  python-build:
+    name: Python build
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.x'
+          python-version: "3.x"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install build
-      - name: Build FluMutGUI
+      - name: Build with Python
         run: python -m build
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: python-build
           path: dist
           if-no-files-found: error
 
+  pyinstaller-build:
+    name: PyInstaller build
 
-  create-installers:
-    name: Create FluMutGUI installers
-    runs-on: windows-latest
-    permissions:
-      contents: read
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-13, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -49,14 +49,34 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.x'
+          python-version: "3.x"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install . pyinstaller
-      - name: Run Pyinstaller
-        run: | 
-          python -m PyInstaller .\flumut_gui\__init__.py --name FluMutGUI --hidden-import flumut --hidden-import flumutdb --additional-hooks-dir .\.hooks\ --clean --noconfirm -w
+          pip install . pyinstaller Pillow
+      - name: Build with Pyinstaller
+        run: |
+          python -m PyInstaller ./src/flumut_gui/__init__.py --name FluMutGUI --icon src/flumut_gui/data/flumut_icon.ico --add-data src/flumut_gui/data/:flumut_gui/data/ --hidden-import flumut --hidden-import flumutdb --additional-hooks-dir ./.hooks/ --clean --noconfirm -w
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyinstaller-${{ runner.os }}
+          path: dist/
+          if-no-files-found: error
+
+  create-windows-installer:
+    name: Create installer for Windows
+    runs-on: windows-latest
+    needs: [pyinstaller-build]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pyinstaller-${{ runner.os }}
+          path: dist
       - name: Install NSIS
         run: |
           iwr -useb get.scoop.sh -outfile 'install.ps1'
@@ -66,40 +86,90 @@ jobs:
           scoop install nsis
       - name: Generate installer
         run: |
-          makensis /DVERSION=${{ github.ref_name }} flumut-gui.nsi 
-      - name: Upload examples
+          makensis /DVERSION=${{ github.ref_name }} windows_installer.nsi
+      - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: installer
-          path: FluMutGUI_Installer.exe
+          name: installer-${{ runner.os }}
+          path: FluMutGUI-Windows-installer.exe
           if-no-files-found: error
 
+  create-macos-installer:
+    name: Create installer for MacOS
+    runs-on: macos-13
+    needs: [pyinstaller-build]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download MacOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pyinstaller-${{ runner.os }}
+          path: dist
+      - name: Generate installer
+        run: |
+          cd dist
+          zip -vr ../FluMutGUI-MacOS.zip FluMutGUI/ -x "*.DS_Store"
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ runner.os }}
+          path: FluMutGUI-MacOS.zip
+          if-no-files-found: error
+
+  create-linux-installer:
+    name: Create installer for Linux
+    runs-on: ubuntu-latest
+    needs: [pyinstaller-build]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pyinstaller-${{ runner.os }}
+          path: dist
+      - name: Generate installer
+        run: |
+          cd dist
+          tar -zcf ../FluMutGUI-linux.tar.gz FluMutGUI/
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ runner.os }}
+          path: FluMutGUI-linux.tar.gz
+          if-no-files-found: error
 
   release:
     name: Create release on GitHub
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: [build, create-installers]
+    needs:
+      [
+        python-build,
+        create-windows-installer,
+        create-macos-installer,
+        create-linux-installer,
+      ]
 
     steps:
-      - name: Download dist
+      - name: Download Python build
         uses: actions/download-artifact@v4
         with:
-          name: dist
-          path: dist
+          name: python-build
       - name: Download installers
         uses: actions/download-artifact@v4
         with:
-          name: installer
+          name: installer-*
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            FluMutGUI_Installer.exe
-            dist/*
-
+            *
 
   pypi:
     name: Publish to PyPI
@@ -111,10 +181,10 @@ jobs:
     needs: release
 
     steps:
-    - name: Download dist artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist
-    - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: python-build
+          path: dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
