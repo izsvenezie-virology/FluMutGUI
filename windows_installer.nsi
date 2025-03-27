@@ -1,6 +1,6 @@
 ; Install parameters
 Name "FluMutGUI"
-Outfile "FluMutGUI_Installer.exe"
+Outfile "FluMutGUI-Windows-installer.exe"
 Icon "${NSISDIR}\Contrib\Graphics\Icons\modern-install.ico"
 RequestExecutionLevel user
 InstallDir $LOCALAPPDATA\FluMutGUI
